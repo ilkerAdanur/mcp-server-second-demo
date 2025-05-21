@@ -5,9 +5,13 @@ from app import getliveTemp
 mcp = FastMCP("weather-forecast-mcp")
 
 @mcp.tool()
-async def get_live_temp(latitude: float, longitude: float) -> Dict[str, Any]:
-    """Ask for temp value matching specific keywords."""
-    return getliveTemp(latitude, longitude)
+async def get_live_temp(latitude: float, longitude: float) -> dict:
+    """
+    Get live temperature for a given latitude and longitude.
+    """
+    # Call the function from app.py
+    result = await getliveTemp(latitude, longitude)
+    return result
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
