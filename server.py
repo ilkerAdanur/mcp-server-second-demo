@@ -1,16 +1,14 @@
 from mcp.server.fastmcp import FastMCP
-from app import getliveTemp
+from app import convert_currency
 
-# Initialize MCP server
-mcp = FastMCP("weather-forecast-mcp")
+mcp = FastMCP("currency-converter-mcp")
 
 @mcp.tool()
-async def get_live_temp(latitude: float, longitude: float) -> dict:
+async def convert_currency_tool(amount: float, from_currency: str, to_currency: str) -> dict:
     """
-    Get live temperature for a given latitude and longitude.
+    Convert currency using exchangerate.host API.
     """
-    # Call the function from app.py (remove await, since getliveTemp is sync)
-    result = getliveTemp(latitude, longitude)
+    result = convert_currency(amount, from_currency, to_currency)
     return result
 
 if __name__ == "__main__":

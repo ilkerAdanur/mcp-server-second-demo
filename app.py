@@ -1,25 +1,21 @@
-def getliveTemp(latitude, longitude):
+def convert_currency(amount, from_currency, to_currency):
     """
-    Get live temperature for a given latitude and longitude.
+    Convert amount from one currency to another using exchangerate.host API.
     """
     import requests
 
-    # Define the API endpoint and parameters    
-    api_url = "https://api.open-meteo.com/v1/forecast"
+    url = "https://api.exchangerate.host/convert"
     params = {
-        "latitude": latitude,
-        "longitude": longitude,
-        "current_weather": True,
+        "from": from_currency.upper(),
+        "to": to_currency.upper(),
+        "amount": amount
     }
-    # Make the API request
-    response = requests.get(api_url, params=params)
-    # Check if the request was successful
+
+    response = requests.get(url, params=params)
+
     if response.status_code == 200:
-        # Parse the JSON response
         data = response.json()
-        # Extract the current temperature
-        current_temp = data["current_weather"]["temperature"]
-        return {"temperature": current_temp}
+        result = data.get("result")
+        return {"converted_amount": result}
     else:
-        # Handle errors
-        return {"error": "Failed to retrieve data from API"}
+        return {"error": "Failed to retrieve data from currency API"}
