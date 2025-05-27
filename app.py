@@ -1,23 +1,45 @@
 import requests
 
 def convertCurrency(amount, from_currency, to_currency):
-    url = f"https://api.exchangerate.host/convert"
-    params = {
-        "from": from_currency.upper(),
-        "to": to_currency.upper(),
-        "amount": amount
-    }
+    """
+    Convert currency using exchangerate-api.com free API
+    """
+    from_currency = from_currency.upper()
+    to_currency = to_currency.upper()
 
-    response = requests.get(url, params=params)
+    # Get exchange rates for the base currency
+    url = f"https://api.exchangerate-api.com/v4/latest/{from_currency}"
+
     try:
-        data = response.json()
-    except Exception:
-        return {"error": "Invalid JSON response from API", "status_code": response.status_code}
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
 
-    if response.status_code == 200 and data.get("success", True):
-        if "result" in data and data["result"] is not None:
-            return {"converted_amount": data["result"]}
-        else:
-            return {"error": "Conversion result not found", "api_response": data}
-    else:
-        return {"error": "API request failed", "status_code": response.status_code, "api_response": data}
+        data = response.json()
+
+        # Check if the target currency exists in rates
+        if "rates" not in data:
+            return {"error": "No exchange rates found in API response"}
+
+        rates = data["rates"]
+
+        if to_currency not in rates:
+            return {"error": f"Currency '{to_currency}' not supported"}
+
+        # Calculate conversion
+        exchange_rate = rates[to_currency]
+        converted_amount = float(amount) * exchange_rate
+
+        return {
+            "converted_amount": round(converted_amount, 2),
+            "exchange_rate": exchange_rate,
+            "from_currency": from_currency,
+            "to_currency": to_currency,
+            "original_amount": amount
+        }
+
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Network error: {str(e)}"}
+    except ValueError as e:
+        return {"error": f"Invalid amount: {str(e)}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {str(e)}"}
