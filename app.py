@@ -1,10 +1,7 @@
-def convert_currency(amount, from_currency, to_currency):
-    """
-    Convert amount from one currency to another using exchangerate.host API.
-    """
-    import requests
+import requests
 
-    url = "https://api.exchangerate.host/convert"
+def convertCurrency(amount, from_currency, to_currency):
+    url = f"https://api.exchangerate.host/convert"
     params = {
         "from": from_currency.upper(),
         "to": to_currency.upper(),
@@ -15,7 +12,9 @@ def convert_currency(amount, from_currency, to_currency):
 
     if response.status_code == 200:
         data = response.json()
-        result = data.get("result")
-        return {"converted_amount": result}
+        if "result" in data:
+            return {"converted_amount": data["result"]}
+        else:
+            return {"error": "Conversion result not found"}
     else:
-        return {"error": "Failed to retrieve data from currency API"}
+        return {"error": "API request failed"}
