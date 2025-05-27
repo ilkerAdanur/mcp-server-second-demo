@@ -9,12 +9,15 @@ def convertCurrency(amount, from_currency, to_currency):
     }
 
     response = requests.get(url, params=params)
-
-    if response.status_code == 200:
+    try:
         data = response.json()
-        if "result" in data:
+    except Exception:
+        return {"error": "Invalid JSON response from API", "status_code": response.status_code}
+
+    if response.status_code == 200 and data.get("success", True):
+        if "result" in data and data["result"] is not None:
             return {"converted_amount": data["result"]}
         else:
-            return {"error": "Conversion result not found"}
+            return {"error": "Conversion result not found", "api_response": data}
     else:
-        return {"error": "API request failed"}
+        return {"error": "API request failed", "status_code": response.status_code, "api_response": data}
